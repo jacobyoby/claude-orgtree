@@ -50,6 +50,13 @@ def main() -> int:
     os.chmod(tokens.tokens_path(), 0o644)
     check("forget removes a stored token", tokens.forget("account-1"))
     check("forget also tightens the replacement", mode(tokens.tokens_path()) == 0o600)
+
+    # --- load() tightens permissions of an existing wider file ---
+    os.chmod(tokens.tokens_path(), 0o644)
+    check("file is world-readable before load()", mode(tokens.tokens_path()) == 0o644)
+    tokens.load()
+    check("load() tightens permissions to owner-only",
+          mode(tokens.tokens_path()) == 0o600)
     print(f"ALL {CHECKS} CHECKS PASS")
     return 0
 
