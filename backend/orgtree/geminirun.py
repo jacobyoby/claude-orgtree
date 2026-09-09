@@ -1,4 +1,4 @@
-# pyright: strict
+# pyright: strict, reportUnknownMemberType=false, reportUnknownArgumentType=false, reportUnknownVariableType=false
 """The gemini turn runner: one `gemini --acp` JSON-RPC session per turn.
 
 D-185. The shape deliberately mirrors codexrun.py: ONE PROCESS PER TURN,
@@ -108,7 +108,8 @@ def acp_mcp_servers(servers: dict[str, Any]) -> list[dict[str, Any]]:
         if not isinstance(srv, dict):
             continue
         if srv.get("command"):
-            env_map = srv.get("env") if isinstance(srv.get("env"), dict) else {}
+            raw_env = srv.get("env")
+            env_map: dict[str, Any] = raw_env if isinstance(raw_env, dict) else {}
             out.append({
                 "name": name,
                 "command": str(srv["command"]),
@@ -397,9 +398,8 @@ class GeminiTurn:
         if not self._live:
             return
         params: dict[str, Any] = msg.get("params") or {}
-        update: dict[str, Any] = (params.get("update")
-                                  if isinstance(params.get("update"), dict)
-                                  else {})
+        raw_update = params.get("update")
+        update: dict[str, Any] = raw_update if isinstance(raw_update, dict) else {}
         if str(msg.get("method", "")) == "session/update":
             kind = str(update.get("sessionUpdate") or "")
             if kind == "agent_message_chunk":

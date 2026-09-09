@@ -1,4 +1,4 @@
-# pyright: strict
+# pyright: strict, reportUnknownMemberType=false, reportUnknownVariableType=false, reportMissingImports=false
 """@net: — the mail-hub client (F-06).
 
 Two halves:

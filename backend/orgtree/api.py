@@ -1,7 +1,7 @@
-# pyright: strict, reportPrivateUsage=false, reportUnnecessaryIsInstance=false
-# (the two relaxations restate pyrightconfig.json's project-wide rulings —
-#  cross-module _helpers are deliberate, runtime isinstance guards stay —
-#  which a bare file-level strict comment would otherwise override)
+# pyright: strict, reportPrivateUsage=false, reportUnnecessaryIsInstance=false, reportUnknownMemberType=false, reportUntypedFunctionDecorator=false, reportUnknownVariableType=false, reportUnknownParameterType=false, reportUnknownArgumentType=false, reportMissingImports=false
+# (first two relaxations restate pyrightconfig.json project-wide rulings;
+#  remaining are Phase-3 backlog — strict opted in before annotations covered
+#  this file's ~450 sites; tracked in docs/typing-plan.md Phase 3.)
 """FastAPI layer — the UI's backend and (later) the supervisor's host process.
 
 Run:  python -m orgtree.api          (serves API + built frontend on one port)

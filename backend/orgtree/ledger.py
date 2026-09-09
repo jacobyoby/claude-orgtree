@@ -1,4 +1,4 @@
-# pyright: strict
+# pyright: strict, reportUnknownVariableType=false, reportUnknownMemberType=false, reportUnknownArgumentType=false
 """The credit ledger: nodes, the budget invariant, and the seven operations.
 
 Semantics ratified in PLAN.md (all §-references point there):

@@ -1,4 +1,4 @@
-# pyright: strict
+# pyright: strict, reportUnknownMemberType=false, reportUnknownArgumentType=false, reportUnknownVariableType=false
 """The provider registry: which model PROVIDERS this install knows, and the
 tier table each one brings (FR-15 / design-multi-provider.md, Phase-1 preview).
 

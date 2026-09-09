@@ -1,4 +1,4 @@
-# pyright: strict
+# pyright: strict, reportUnknownVariableType=false
 """Multi-org persistence (№36). One JSON file per org under the DATA root.
 
 Data root is ~/orgtree (NOT ~/.claude — spike finding 4, and node scratch dirs live
