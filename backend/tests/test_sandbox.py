@@ -137,6 +137,7 @@ SKIPS: list[str] = []
 # detection for real against a fake `_run`. Everywhere else the name is pinned
 # so no section outside §4/§9 depends on WSL being installed.
 dsk._distro_cache = "docker-desktop"
+dsk._mount_root_cache = "/mnt/wsl/orgtree-disk"
 
 
 def check(label, fn):
