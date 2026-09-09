@@ -309,6 +309,11 @@ class NodeDoc(TypedDict):
     # completed turn, and self-healed by reconcile the moment a transcript
     # for the session id does exist.
     session_unrun: NotRequired[bool]
+    # provider-specific resume markers: the real thread/session id the
+    # supervisor binds to session_id on first contact with each provider,
+    # so a later turn can resume rather than start cold
+    codex_thread: NotRequired[str]
+    gemini_session: NotRequired[str]
     # ⭐ the user-override record (ruling 2026-08-06): Org.unstick moves the
     # released freeze here {by, at, was} — evidence, never erasure
     unstuck: NotRequired[dict[str, Any]]
