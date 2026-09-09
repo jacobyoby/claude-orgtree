@@ -1,3 +1,5 @@
+> **Superseded.** This document describes the D-144 multi-account registry design from 2026-08-24. It was replaced wholesale by the 2026-08-25 redesign in `backend/orgtree/accounts.py`. The branch `feat/multi-account-registry` and test files `backend/tests/test_accounts.py` and `backend/tests/_mutate_accounts.py` no longer exist. Kept for historical reference only.
+
 # Multi-account — handover (branch `feat/multi-account-registry`)
 
 Written 2026-08-24 by creds-probe, on being stopped mid-feature. Assume you
