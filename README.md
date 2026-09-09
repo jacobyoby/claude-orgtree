@@ -555,3 +555,7 @@ TypeScript throughout.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Support
+
+This project is maintained by the founder of [JACOBRAKAI FOUNDATION](https://jacobrakai.org/about/), a 501(c)(3) public charity (EIN 33-3382083) that publishes free New Jersey court-form resources and open security research. If this project is useful to you, [donate to the Foundation](https://donate.stripe.com/eVq4gy97DanS9h60phfrW00). Details on [how gifts are used](https://jacobrakai.org/donate/).
