@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import threading
 from typing import Any
 
@@ -55,13 +56,21 @@ def load() -> dict[str, Any]:
     token file must not take the panel or the turn loop down. A WRITE against
     a corrupt file is refused separately (see `put`) so that degrading to
     blank can never blank the file."""
+    path = tokens_path()
     try:
-        with open(tokens_path(), encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             doc = json.load(f)
     except Exception:                                        # noqa: BLE001
         return _blank()
     if not isinstance(doc, dict) or not isinstance(doc.get("tokens"), dict):
         return _blank()
+    # Tighten permissions on any existing file that may have been created
+    # before the permission fix was in place. POSIX only; no-op on Windows.
+    if sys.platform != "win32":
+        try:
+            os.chmod(path, 0o600)
+        except OSError:
+            pass
     return doc
 
 
