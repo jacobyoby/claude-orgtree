@@ -1,7 +1,7 @@
 # orgtree — the complete configuration reference
 
 Originally compiled from a source sweep on 2026-08-04 and revised as features
-shipped. The source code is authoritative; file and line references here are
+shipped. The source code is authoritative; symbol-name references here are
 breadcrumbs, not a promise that a later refactor leaves them unchanged.
 
 **How to read this.** Configuration lives at six levels. Each one is set in a different place, at a
@@ -35,11 +35,11 @@ Set before the backend starts. Not visible in the UI, not per-org. A change requ
 
 | variable | default | what it does |
 |---|---|---|
-| `ORGTREE_DATA` | `~/orgtree` | the data root: org docs, workspaces, scratch, sandboxes (`store.py:26`) |
-| `ORGTREE_PORT` | `7360` | admin API + UI, bound to loopback unless exposed below (`api.py:368`) |
-| `ORGTREE_PUBLIC_PORT` | `0` (off) | the PublicGateway listener for kiosk `/k/<token>` URLs (`api.py:369`) |
-| `ORGTREE_PUBLIC_ORIGIN` | — | external origin advertised in kiosk links (`api.py:370`) |
-| `ORGTREE_CLAUDE` / `ORGTREE_CLAUDE_CLI` | auto-detected | path to the Claude Code CLI (`supervisor.py:167,174`) |
+| `ORGTREE_DATA` | `~/orgtree` | the data root: org docs, workspaces, scratch, sandboxes (`store.py` `DATA_ROOT`) |
+| `ORGTREE_PORT` | `7360` | admin API + UI, bound to loopback unless exposed below (`api.py` `PORT`) |
+| `ORGTREE_PUBLIC_PORT` | `0` (off) | the PublicGateway listener for kiosk `/k/<token>` URLs (`api.py` `PUBLIC_PORT`) |
+| `ORGTREE_PUBLIC_ORIGIN` | — | external origin advertised in kiosk links (`api.py` `PUBLIC_ORIGIN`) |
+| `ORGTREE_CLAUDE` / `ORGTREE_CLAUDE_CLI` | auto-detected | path to the Claude Code CLI (`supervisor.py` `CLAUDE`, `CLAUDE_CLI_JS`) |
 | `ORGTREE_CODEX` | auto-detected | path to the Codex CLI; resolution is override → private install under `<data>/codex` → `PATH` |
 | `CODEX_HOME` | `~/.codex` | Codex CLI home, including its own login state; orgtree passes it through and does not copy credentials |
 | `ORGTREE_GEMINI` | auto-detected | path to the Gemini CLI; resolution is override → private install under `<data>/gemini` → `PATH` |
@@ -71,39 +71,39 @@ scope, charter, and MCP-grant rules as Claude tiers.
 
 | variable | default | what it does |
 |---|---|---|
-| `ORGTREE_MAX_TURNS` | `16` | concurrent turn slots, **global not per-org**; ~306 MB per turn (`supervisor.py:243`, D-49) |
+| `ORGTREE_MAX_TURNS` | `16` | concurrent turn slots, **global not per-org**; ~306 MB per turn (`supervisor.py` `MAX_CONCURRENT`, D-49) |
 | `ORGTREE_TURN_TIMEOUT` | `14400` s | absolute per-message ceiling, re-based at each result event — a backstop, not the bound that normally fires (`supervisor.py`, reshaped 2026-08-04) |
 | `ORGTREE_TURN_IDLE` | `600` s | the idle watchdog: kill only after this long with ZERO CLI stdout events — distinguishes "wedged" from "working" (`supervisor.py`) |
 | `ORGTREE_COMPACT_TIMEOUT` | `600` s | the compaction fork's own bound (`supervisor.py`) — a big context can legitimately need longer |
-| `ORGTREE_COMPACT_AT` | `0.80` | context fraction that triggers compaction (`supervisor.py:144`) |
-| `ORGTREE_ORACLE_AT` | `0.92` | context fraction for the §8.3 state 2→3 transition (`supervisor.py:145`) |
-| `ORGTREE_CONTEXT_WINDOWS` | `{}` | JSON override of per-model context sizes (`supervisor.py:153`) |
-| `ORGTREE_STEER_HOOK` | on | `0` disables the PostToolUse steer hook (`supervisor.py:930,959`) |
+| `ORGTREE_COMPACT_AT` | `0.80` | context fraction that triggers compaction (`supervisor.py` `COMPACT_AT`) |
+| `ORGTREE_ORACLE_AT` | `0.92` | context fraction for the §8.3 state 2→3 transition (`supervisor.py` `ORACLE_AT`) |
+| `ORGTREE_CONTEXT_WINDOWS` | `{}` | JSON override of per-model context sizes (`supervisor.py` `TIER_CONTEXT`) |
+| `ORGTREE_STEER_HOOK` | on | `0` disables the PostToolUse steer hook (`supervisor.py` `steer_capable`, `_steer_settings`) |
 
 ### Sandbox
 
 | variable | default | what it does |
 |---|---|---|
-| `ORGTREE_SANDBOX_IMAGE` | `orgtree-sandbox` | container image tag (`sandbox.py:52`) |
-| `ORGTREE_SANDBOX_MEM` | `4g` | container memory (`sandbox.py:58`) |
-| `ORGTREE_SANDBOX_CPUS` | `2` | container CPUs (`sandbox.py:59`) |
-| `ORGTREE_SANDBOX_TMP` | `1g` | `/tmp` tmpfs, counts against memory (`sandbox.py:77`) |
-| `ORGTREE_SANDBOX_RUN` | `64m` | `/run` tmpfs (`sandbox.py:78`) |
-| `ORGTREE_SANDBOX_DISK_MB` | `20480` | virtual-disk size when the org does not specify (`sandbox.py:81`) |
-| `ORGTREE_BRIDGE_PORT` | `7362` | the BridgeGateway — the one door out of a container (`sandbox.py:57`) |
+| `ORGTREE_SANDBOX_IMAGE` | `orgtree-sandbox` | container image tag (`sandbox.py` `IMAGE`) |
+| `ORGTREE_SANDBOX_MEM` | `4g` | container memory (`sandbox.py` `MEM`) |
+| `ORGTREE_SANDBOX_CPUS` | `2` | container CPUs (`sandbox.py` `CPUS`) |
+| `ORGTREE_SANDBOX_TMP` | `1g` | `/tmp` tmpfs, counts against memory (`sandbox.py` `TMP_SIZE`) |
+| `ORGTREE_SANDBOX_RUN` | `64m` | `/run` tmpfs (`sandbox.py` `RUN_SIZE`) |
+| `ORGTREE_SANDBOX_DISK_MB` | `20480` | virtual-disk size when the org does not specify (`sandbox.py` `DISK_MB`) |
+| `ORGTREE_BRIDGE_PORT` | `7362` | the BridgeGateway — the one door out of a container (`sandbox.py` `BRIDGE_PORT`) |
 | `ORGTREE_SANDBOX_API_KEY` | — | ⚠ escape hatch: a literal API key instead of the proxied subscription (`sandbox.uses_subscription_auth` / `sandbox.container_auth`) |
-| `ORGTREE_SANDBOX_MCP` | off | EXPERIMENTAL — allow MCP servers inside a sandbox (`supervisor.py:479`) |
+| `ORGTREE_SANDBOX_MCP` | off | EXPERIMENTAL — allow MCP servers inside a sandbox (`supervisor.py` `sandbox_mcp_enabled`) |
 
 ### Retired / legacy
 
-`ORGTREE_KIOSK`, `ORGTREE_KIOSK_CREDITS`, `ORGTREE_KIOSK_SPEND_LIMIT` (`api.py:345-354`) — retired
+`ORGTREE_KIOSK`, `ORGTREE_KIOSK_CREDITS`, `ORGTREE_KIOSK_SPEND_LIMIT` (`api.py` legacy kiosk migration) — retired
 in favour of per-org kiosk config; a legacy value is migrated once at startup and then ignored.
 
 ### Exposing the admin port
 
 | variable | default | what it does |
 |---|---|---|
-| `ORGTREE_EXPOSE_ADMIN` | unset (loopback) | ☠ binds the admin API to `0.0.0.0` (`api.py:3004`). Truthy values: `1`, `true`, `yes`, `on`. |
+| `ORGTREE_EXPOSE_ADMIN` | unset (loopback) | ☠ binds the admin API to `0.0.0.0` (`api.py` `_admin_host`). Truthy values: `1`, `true`, `yes`, `on`. |
 
 ☠ **The admin API has no password, no token and no login** — "you can reach 127.0.0.1" has always
 been the whole credential. Anyone who reaches an exposed port controls every org and can make agents
@@ -113,24 +113,24 @@ Both deploy scripts keep a convenience switch (`-ExposeAdmin` / `--expose-admin`
 variable for that launch. A service definition sets the variable directly and needs no switch —
 which is why it moved here from argv (user ruling 2026-08-04, superseding D-39).
 
-⚠ It is **stripped from every agent's environment** by `clean_env()` (`supervisor.py:406`): env vars
+⚠ It is **stripped from every agent's environment** by `clean_env()` (`supervisor.py` `clean_env`): env vars
 are inherited by child processes, and whether the host is reachable off loopback is not an agent's
 business.
 
 ### Set by orgtree, not by you
 
 `ORGTREE_ORG`, `ORGTREE_NODE`, `ORGTREE_BASE`, `ORGTREE_BRIDGE_SECRET` are injected into each agent
-process so its MCP server knows who it is (`supervisor.py:1179-1181`, `mcptool.py:22-28`).
-`ORGTREE_EXTERN_ID` pins an external session's peer identity (`externtool.py:41`).
+process so its MCP server knows who it is (`supervisor.py` spawn env injection, `mcptool.py` `ORG`, `NODE`, `PORT`, `BASE`, `BRIDGE_SECRET`).
+`ORGTREE_EXTERN_ID` pins an external session's peer identity (`externtool.py` `PEER_RE`).
 
 ---
 
 ## ② Global defaults — `<data>/defaults.json`
 
 Edited from the root page. **Applies to newly created orgs only** — changing it never touches an
-existing org (`api.py:534-539`). Stored org-doc-shaped, so any org-level key below is legal here.
+existing org (`api.py` `load_org_defaults`). Stored org-doc-shaped, so any org-level key below is legal here.
 
-Shipped baseline (`api.py:770-774`):
+Shipped baseline (`api.py` `_DEFAULTS_BASE`):
 
 | key | default |
 |---|---|
@@ -148,7 +148,7 @@ Shipped baseline (`api.py:770-774`):
 
 ## ③ Org level — the settings panel (`POST /api/orgs/{slug}/settings`)
 
-Editable at any time; takes effect immediately unless noted. Model at `api.py:751-764`.
+Editable at any time; takes effect immediately unless noted. Model at `api.py` `Settings`.
 
 | setting | type | meaning |
 |---|---|---|
@@ -174,17 +174,17 @@ Also on the org doc but not in that panel: `max_depth` and `max_children`, both 
 
 | what | where | effect |
 |---|---|---|
-| **org.md** | `PUT /api/orgs/{slug}/orgmd` | the workspace `CLAUDE.md` — injected into every agent holding the workspace (`api.py:1748`) |
-| **charter presets** | `docs/charters/*.md` | each file is a selectable preset at hire time (`api.py:1141`) |
+| **org.md** | `PUT /api/orgs/{slug}/orgmd` | the workspace `CLAUDE.md` — injected into every agent holding the workspace (`api.py` `orgmd_put`) |
+| **charter presets** | `docs/charters/*.md` | each file is a selectable preset at hire time (`api.py` `charters_list`) |
 
 ---
 
 ## ④ Ceilings — kiosk and sandbox
 
-Set **at creation** (`OrgCreate.kiosk`, `api.py:464-471`) and administered afterwards from the
+Set **at creation** (`OrgCreate.kiosk`, `api.py` `OrgCreate`) and administered afterwards from the
 dashboard. This is the only level that clamps rather than configures.
 
-### Kiosk (`KioskSpec`, `api.py:448-461`)
+### Kiosk (`KioskSpec`, `api.py` `KioskSpec`)
 
 | field | default | meaning |
 |---|---|---|
@@ -199,12 +199,12 @@ dashboard. This is the only level that clamps rather than configures.
 subscription — the host attaches the token and the container never sees a credential.
 
 ⚠ A kiosk org is **sealed from the outside world** in both directions — no hub mail, no inter-org mail,
-not listed to outsiders (`ledger.py:809-811,913`, `supervisor.py:2473`). The refusal is deliberately
+not listed to outsiders (`ledger.py` `is_kiosk`, `_apply_ceiling`, `supervisor.py` `interorg_send`). The refusal is deliberately
 indistinguishable from "no such org" so the kiosk roster cannot be enumerated.
 
 ### Sandbox on a non-kiosk org
 
-`sandbox: bool` + `disk_mb` (≥ 4096) at creation (`api.py:469-471`), or enabled later. One capped
+`sandbox: bool` + `disk_mb` (≥ 4096) at creation (`api.py` `OrgCreate.disk_mb`), or enabled later. One capped
 ext4 image holds everything persistent; ENOSPC is the enforcement. Soft alert at 90 %, persistent
 alert at 99 %.
 
@@ -212,9 +212,9 @@ alert at 99 %.
 
 ## ⑤ Agent defaults — what a new hire is born with
 
-Org-doc keys (`schema.py:239-243`) that supply a hire's starting configuration. The user hires from
+Org-doc keys (`schema.py` `NodeDoc`) that supply a hire's starting configuration. The user hires from
 these; ⚠ **an agent hiring must state every one explicitly** — no defaults apply to an agent actor
-(`ledger.py:1302-1306`).
+(`ledger.py` `hire`).
 
 | key | values | meaning |
 |---|---|---|
@@ -222,17 +222,17 @@ these; ⚠ **an agent hiring must state every one explicitly** — no defaults a
 | `default_visibility` | `self` \| `team` \| `subtree` \| `full` | how much of the org chart a hire can see |
 | `default_effort` | `""` (CLI default) \| `low`…`max` | thinking effort; resolved **live** at turn start, so changing it moves existing agents too |
 | `permission_mode` | `acceptEdits` (default) | the CLI permission mode |
-| `tiers` / `models` | Claude: fable 10, opus 5, sonnet 2, haiku 1; Codex: sol 5, terra 2, luna 1; Gemini: pro 2, flash 1 | credit cost per tier and the model each maps to (`ledger.py:49-80`) |
+| `tiers` / `models` | Claude: fable 10, opus 5, sonnet 2, haiku 1; Codex: sol 5, terra 2, luna 1; Gemini: pro 2, flash 1 | credit cost per tier and the model each maps to (`ledger.py` `TIERS`, `MODELS`) |
 
 MCP servers are discovered from the user's own `~/.claude.json` → `mcpServers`
-(`supervisor.py:466-472`), so orgtree grants from that list rather than defining servers itself.
+(`supervisor.py` `registered_mcp_servers`), so orgtree grants from that list rather than defining servers itself.
 
 ---
 
 ## ⑥ Per-agent — `NodeScope`, the ⚙ panel
 
 Per seat, set with `set_scope`, clamped against the parent chain **and** the kiosk ceiling
-(`schema.py:55-65`).
+(`schema.py` `NodeScope`).
 
 | field | values |
 |---|---|
@@ -244,13 +244,13 @@ Per seat, set with `set_scope`, clamped against the parent chain **and** the kio
 
 Set at hire time instead: `tier` (model), `grant` (credits), `name`, `charter`. The **charter** is
 the one role statement and is injected into every turn — editable later via retool
-(`ledger.py:1295-1306`).
+(`ledger.py` `hire`).
 
 Resolution order for effort: node `scope.effort` → org `default_effort` → `Org.DEFAULT_EFFORT`
-(`high`, `ledger.py:2185`). It is never empty at the CLI — every turn passes a flag.
+(`high`, `ledger.py` `DEFAULT_EFFORT`). It is never empty at the CLI — every turn passes a flag.
 
 Runtime state that looks like configuration but is not: `frozen`, `limit_locked`, `bearer_state`,
-`cost_usd`, `occupancy`, `context_window`, `last_status`, `turns` (`schema.py:132-146`). These are
+`cost_usd`, `occupancy`, `context_window`, `last_status`, `turns` (`schema.py` `FrozenInfo`). These are
 bookkeeping the supervisor writes; nothing reads them as settings.
 
 ---
@@ -279,7 +279,7 @@ Design record: `docs/mailserver-spec.md` (§12 rulings) + DECISIONS.md D-097/D-0
 ## Browser-local state (not configuration, but it looks like it)
 
 Kept in `localStorage`, per browser, never synced and never in the org doc: inbox-seen watermark
-and card-pile layout per org (`OrgCanvas.tsx:57,88`), disk-browser mode (`DiskBrowser.tsx:52`). A
+and card-pile layout per org (`OrgCanvas.tsx` `trayOpen`, `sheetId`), disk-browser mode (`DiskBrowser.tsx` `mode`). A
 different browser or a cleared profile starts fresh — that is intended, not a bug.
 
 ---
