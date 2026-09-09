@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import threading
 from typing import Any
 
@@ -55,13 +56,21 @@ def load() -> dict[str, Any]:
     token file must not take the panel or the turn loop down. A WRITE against
     a corrupt file is refused separately (see `put`) so that degrading to
     blank can never blank the file."""
+    path = tokens_path()
     try:
-        with open(tokens_path(), encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             doc = json.load(f)
     except Exception:                                        # noqa: BLE001
         return _blank()
     if not isinstance(doc, dict) or not isinstance(doc.get("tokens"), dict):
         return _blank()
+    # Tighten permissions on any existing file that may have been created
+    # before the permission fix was in place. POSIX only; no-op on Windows.
+    if sys.platform != "win32":
+        try:
+            os.chmod(path, 0o600)
+        except OSError:
+            pass
     return doc
 
 
@@ -81,6 +90,30 @@ def _load_strict() -> dict[str, Any]:
     return doc
 
 
+def _write(doc: dict[str, Any]) -> None:
+    """Write the token store atomically, with owner-only permissions on POSIX."""
+    path = tokens_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    try:
+        # O_CREAT does not change the mode of a stale temp file left by an
+        # interrupted write, so tighten that descriptor before serialising.
+        if os.name == "posix":
+            os.fchmod(fd, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            fd = -1
+            json.dump(doc, f, indent=2)
+        os.replace(tmp, path)
+    finally:
+        if fd != -1:
+            os.close(fd)
+        try:
+            os.unlink(tmp)
+        except FileNotFoundError:
+            pass
+
+
 def put(uuid: str, token: str) -> None:
     """⚠ STORE FIRST. Writes the token durably before any validation runs.
 
@@ -97,11 +130,7 @@ def put(uuid: str, token: str) -> None:
         doc = _load_strict()
         doc["tokens"][uuid] = token
         doc["version"] = VERSION
-        os.makedirs(os.path.dirname(tokens_path()), exist_ok=True)
-        tmp = tokens_path() + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(doc, f, indent=2)
-        os.replace(tmp, tokens_path())          # atomic; no partial file
+        _write(doc)
 
 
 def get(uuid: str) -> str:
@@ -122,10 +151,7 @@ def forget(uuid: str) -> bool:
         if str(uuid) not in doc["tokens"]:
             return False
         del doc["tokens"][str(uuid)]
-        tmp = tokens_path() + ".tmp"
-        with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(doc, f, indent=2)
-        os.replace(tmp, tokens_path())
+        _write(doc)
         return True
 
 
