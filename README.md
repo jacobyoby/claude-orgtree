@@ -560,4 +560,4 @@ MIT — see [LICENSE](LICENSE).
 
 [Donate / Support Jacobrakai Foundation — JACOBRAKAI FOUNDATION 501(c)(3)](https://donate.stripe.com/eVq4gy97DanS9h60phfrW00)
 
-JACOBRAKAI FOUNDATION is a 501(c)(3) public charity (EIN 33-3382083), effective February 11, 2025.
+JACOBRAKAI FOUNDATION is a 501(c)(3) public charity (EIN 33-3382083), effective February 11, 2025. It publishes free New Jersey court-form resources and open security research; this project is maintained by its founder. Details on [how gifts are used](https://jacobrakai.org/donate/).
