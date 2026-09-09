@@ -536,7 +536,10 @@ def _resolve_in(doc: dict[str, Any], live_uuid: str, tier: str,
 
     def mark(acct: str) -> float | None:
         try:
-            ts = float((ref.get(acct) or {}).get(tier))
+            raw = (ref.get(acct) or {}).get(tier)
+            if raw is None:
+                return None
+            ts = float(raw)
         except (TypeError, ValueError):
             return None
         return ts if ts > now else None        # expired reads as capacity

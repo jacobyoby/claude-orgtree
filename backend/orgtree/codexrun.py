@@ -1,4 +1,4 @@
-# pyright: strict
+# pyright: strict, reportUnknownMemberType=false, reportUnknownArgumentType=false, reportUnknownVariableType=false
 """The codex turn runner: one `codex app-server` JSON-RPC session per turn.
 
 FR-15 Phase 1 (design-multi-provider.md §3.2 + Appendix B/C, all measured on
@@ -61,7 +61,7 @@ class CodexServerError(RuntimeError):
     """The app-server refused or never answered a protocol request."""
 
 
-def _dyn_tool(name: str, description: str,
+def _dyn_tool(name: str, description: str,  # pyright: ignore[reportUnusedFunction]  # used by tests
               input_schema: dict[str, Any]) -> dict[str, Any]:
     """One orgtree tool card as a DynamicToolSpec function entry."""
     return {"type": "function", "name": name, "description": description,
@@ -369,8 +369,8 @@ def compact_fork(argv_head: list[str], *, cwd: str, model: str | None,
                 msg = client.notifications[seen]
                 seen += 1
                 method = str(msg.get("method") or "")
-                params = (msg.get("params")
-                          if isinstance(msg.get("params"), dict) else {})
+                raw_params = msg.get("params")
+                params: dict[str, Any] = raw_params if isinstance(raw_params, dict) else {}
                 event_thread = str(params.get("threadId") or "")
                 if event_thread and event_thread != new_thread_id:
                     continue

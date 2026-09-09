@@ -1,4 +1,4 @@
-# pyright: strict
+# pyright: strict, reportUnknownArgumentType=false, reportUnknownMemberType=false, reportUnknownVariableType=false
 """Codex subscription rate-limit usage, read through the local app-server.
 
 Codex owns the signed-in account and its refreshed credentials.  Orgtree asks

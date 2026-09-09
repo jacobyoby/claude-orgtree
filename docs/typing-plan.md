@@ -21,10 +21,11 @@ scope; check items off as they land.
       previously lived only in people's heads (see the misleading-reads history).
       Single source of truth; extend it rather than re-deriving dict shapes.
 - [x] `pyrightconfig.json` (basic mode, py3.10). Run with `npx pyright` from the
-      repo root. Not wired into CI yet — the repo has none; update.ps1 is not a
-      gate. `backend/tests` is excluded on purpose: the suite deliberately
-      passes wrong shapes to assert `LedgerError`, and its correctness gate is
-      running it (`python backend/tests/test_ledger.py`), not checking it.
+      repo root. Wired into CI (`.github/workflows/tests.yml` — `npx --yes pyright`
+      step, gates both matrix jobs). `backend/tests` is excluded on purpose: the
+      suite deliberately passes wrong shapes to assert `LedgerError`, and its
+      correctness gate is running it (`python backend/tests/test_ledger.py`),
+      not checking it.
 - [x] Annotate signatures across `ledger.py`, `store.py`, `supervisor.py`,
       `api.py`, and the small modules (`mcptool`, `sandbox`, `externtool`,
       `steer`, `subproxy`). Signatures and module-level constants first; locals
@@ -55,7 +56,23 @@ scope; check items off as they land.
 
 ## Phase 3 — tighten (optional, needs its own green light)
 
-- [ ] pyright strict mode module-by-module.
+- [ ] pyright strict mode module-by-module. **Current state** (2026-09-08):
+      Several modules carry `# pyright: strict` headers with per-rule
+      suppressions for rules whose annotation backlog has not been paid down.
+      Strict-opt-in files and their suppressed rules:
+      - `api.py` — `reportUnknownMemberType`, `reportUntypedFunctionDecorator`,
+        `reportUnknownVariableType`, `reportUnknownParameterType`,
+        `reportUnknownArgumentType`, `reportMissingImports` (~454 sites)
+      - `geminirun.py`, `codexrun.py`, `codex_limits.py`, `providers.py` —
+        `reportUnknownMemberType`, `reportUnknownArgumentType`,
+        `reportUnknownVariableType`
+      - `ledger.py` — `reportUnknownVariableType`, `reportUnknownMemberType`,
+        `reportUnknownArgumentType`
+      - `net.py` — `reportUnknownMemberType`, `reportUnknownVariableType`,
+        `reportMissingImports`
+      - `store.py` — `reportUnknownVariableType`
+      The Phase-3 work is to remove these suppressions one rule at a time by
+      adding type annotations at each call site.
 - [ ] `noUncheckedIndexedAccess` in tsconfig.
 - [x] Split Canvas.tsx into modules (canvas/{shared,modals,mail,desk,cards,
       OrgCanvas} + a 21-line barrel; verbatim-move verified line-by-line,

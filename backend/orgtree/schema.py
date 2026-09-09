@@ -218,6 +218,8 @@ class NodeDoc(TypedDict):
     # scoped to exactly these addresses and attributed by=node in the
     # org_inbox row; the grant rides the seat (survives retire/rehire).
     external_handles: NotRequired[list[str]]
+    # per-handle last-seen timestamps, keyed by the external handle string
+    external_handles_at: NotRequired[dict[str, str]]
     # §8 lineage axis — second axis, never an org edge. FR-24's cheap-compact
     # replacement uses the same pair: `predecessor` on the replacement points
     # at the archived original (whose scratch the supervisor grants read-only

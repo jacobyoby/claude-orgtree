@@ -4080,14 +4080,14 @@ def _codex_tool_item(item: dict[str, Any]) -> tuple[str, dict[str, Any]] | None:
     patch, MCP and web work disappear from the desk entirely."""
     typ = str(item.get("type") or "")
     if typ == "dynamicToolCall":
-        return str(item.get("tool") or "tool"), (
-            item.get("arguments") if isinstance(item.get("arguments"), dict)
-            else {"arguments": item.get("arguments")})
+        raw_args = item.get("arguments")
+        args: dict[str, Any] = raw_args if isinstance(raw_args, dict) else {"arguments": raw_args}
+        return str(item.get("tool") or "tool"), args
     if typ == "mcpToolCall":
         server, tool = str(item.get("server") or "mcp"), str(item.get("tool") or "tool")
-        return f"mcp__{server}__{tool}", (
-            item.get("arguments") if isinstance(item.get("arguments"), dict)
-            else {"arguments": item.get("arguments")})
+        raw_args2 = item.get("arguments")
+        args2: dict[str, Any] = raw_args2 if isinstance(raw_args2, dict) else {"arguments": raw_args2}
+        return f"mcp__{server}__{tool}", args2
     if typ == "commandExecution":
         return "exec_command", {"command": str(item.get("command") or "")}
     if typ == "fileChange":
@@ -4165,8 +4165,8 @@ def _codex_image_inputs(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     out: list[dict[str, Any]] = []
     for block in blocks:
-        source = (block.get("source")
-                  if isinstance(block.get("source"), dict) else {})
+        raw_source = block.get("source")
+        source: dict[str, Any] = raw_source if isinstance(raw_source, dict) else {}
         media = source.get("media_type")
         data = source.get("data")
         if (block.get("type") == "image" and source.get("type") == "base64"
@@ -4185,8 +4185,8 @@ def _gemini_image_inputs(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     stays in the text, so a file is never silently hidden from the agent."""
     out: list[dict[str, Any]] = []
     for block in blocks:
-        source = (block.get("source")
-                  if isinstance(block.get("source"), dict) else {})
+        raw_source = block.get("source")
+        source: dict[str, Any] = raw_source if isinstance(raw_source, dict) else {}
         media = source.get("media_type")
         data = source.get("data")
         if (block.get("type") == "image" and source.get("type") == "base64"
@@ -4389,8 +4389,10 @@ def _codex_leg(slug: str, nid: str, org: Org, st: dict[str, Any],
         method = str(msg.get("method") or "")
         if method not in ("item/started", "item/completed"):
             return
-        params = msg.get("params") if isinstance(msg.get("params"), dict) else {}
-        item = params.get("item") if isinstance(params.get("item"), dict) else {}
+        raw_params = msg.get("params")
+        params: dict[str, Any] = raw_params if isinstance(raw_params, dict) else {}
+        raw_item = params.get("item")
+        item: dict[str, Any] = raw_item if isinstance(raw_item, dict) else {}
         completed = method == "item/completed"
         ts = _event_ts(params, completed)
         typ = str(item.get("type") or "")
@@ -4698,8 +4700,8 @@ def _gemini_leg(slug: str, nid: str, org: Org, st: dict[str, Any],
                      and tools_sc.get("bash", True) else "default")
 
     def _decide(params: dict[str, Any]) -> str | None:
-        call = (params.get("toolCall")
-                if isinstance(params.get("toolCall"), dict) else {})
+        raw_call = params.get("toolCall")
+        call: dict[str, Any] = raw_call if isinstance(raw_call, dict) else {}
         kind = str(call.get("kind") or "")
         needs = ("edit" if kind in ("edit", "delete", "move") else
                  "bash" if kind == "execute" else None)
@@ -4832,10 +4834,10 @@ def _gemini_leg(slug: str, nid: str, org: Org, st: dict[str, Any],
     def _on_event(msg: dict[str, Any]) -> None:
         if str(msg.get("method") or "") != "session/update":
             return
-        params = (msg.get("params")
-                  if isinstance(msg.get("params"), dict) else {})
-        update = (params.get("update")
-                  if isinstance(params.get("update"), dict) else {})
+        raw_params = msg.get("params")
+        params: dict[str, Any] = raw_params if isinstance(raw_params, dict) else {}
+        raw_update = params.get("update")
+        update: dict[str, Any] = raw_update if isinstance(raw_update, dict) else {}
         if update:
             _on_update(update)
 
@@ -8577,13 +8579,14 @@ def _compact_split_codex_body(slug: str, nid: str, org: Org,
             new_journal = os.path.join(jdir, new_sid + ".jsonl")
             if os.path.exists(old_journal):
                 shutil.copyfile(old_journal, new_journal)
+            occ_val = n.get("occupancy")
             records: list[dict[str, Any]] = [{
                 "type": "system", "subtype": "compact_boundary",
                 "timestamp": now_iso(), "content": "Conversation compacted",
                 "compactMetadata": {
                     "trigger": "orgtree",
-                    **({"preTokens": int(n["occupancy"])}
-                       if isinstance(n.get("occupancy"), int) else {}),
+                    **({"preTokens": int(occ_val)}
+                       if isinstance(occ_val, int) else {}),
                     **({"postTokens": occ_new} if occ_new else {})}}]
             if occ_new:
                 records.append({
