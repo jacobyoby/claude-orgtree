@@ -3,8 +3,8 @@
 This is task-oriented — "how do I get from a fresh PC to shape X" — for the four ways orgtree gets
 run. For a knob-by-knob reference of every setting once you're up, see
 [`configuration.md`](configuration.md); this guide cites it rather than repeating it. Compiled by
-the Orgtree Curator from a source sweep (file:line citations throughout), not from memory —
-re-check a cited line if the code has since moved.
+the Orgtree Curator from a source sweep (symbol-name citations throughout), not from memory —
+re-check a cited symbol if the code has since been renamed.
 
 The four shapes are additive, not exclusive: shapes ②–④ all start from shape ①'s install. Pick the
 section(s) you need.
@@ -146,7 +146,7 @@ On first use the session mints a persistent peer identity `@mcp:<id>`, stored in
 an org's inbox, read what the org has sent back, and wait (long-poll) for a reply — a full
 question-and-answer loop. It talks to `ORGTREE_BASE` (default `http://127.0.0.1:{ORGTREE_PORT}`,
 i.e. `:7360`) — point `ORGTREE_PORT`/`ORGTREE_BASE` at a remote instance if the chat isn't running
-on the same machine as orgtree itself (`externtool.py:31-32`).
+on the same machine as orgtree itself (`externtool.py` `PORT`, `BASE`).
 
 This is the same shape as connecting a chat to the mailserver hub (§3's `hubtool.py`), one level
 narrower in scope: `externtool.py` reaches one specific local instance; `hubtool.py` reaches
@@ -162,11 +162,11 @@ An org exposed through a **preauthenticated secret URL** on a *separate* public 
 admin app itself never leaves `127.0.0.1` (`README.md`). A kiosk is **sealed from the outside world
 in both directions** — no hub mail, no inter-org mail — and the refusal is deliberately
 indistinguishable from "no such org," so the kiosk roster can't be enumerated by probing
-(`ledger.py:809-811,913`; `configuration.md` §④).
+(`ledger.py` `is_kiosk`, `_apply_ceiling`; `configuration.md` §④).
 
 ### Creating one
 
-Set at creation (`OrgCreate.kiosk`, `api.py:448-471`) via the creation form's `advanced` disclosure,
+Set at creation (`OrgCreate.kiosk`, `api.py` `OrgCreate`) via the creation form's `advanced` disclosure,
 administered afterwards from the kiosk dashboard:
 
 | field | default | meaning |
@@ -194,14 +194,14 @@ capped ext4 virtual disk holds everything persistent, enforced by `ENOSPC` itsel
 
 | env var | default | what it does |
 |---|---|---|
-| `ORGTREE_SANDBOX_IMAGE` | `orgtree-sandbox` | container image tag (`sandbox.py:52`) |
-| `ORGTREE_SANDBOX_MEM` | `4g` | container memory (`sandbox.py:58`) |
-| `ORGTREE_SANDBOX_CPUS` | `2` | container CPUs (`sandbox.py:59`) |
-| `ORGTREE_SANDBOX_TMP` | `1g` | `/tmp` tmpfs, counts against memory (`sandbox.py:77`) |
-| `ORGTREE_SANDBOX_RUN` | `64m` | `/run` tmpfs (`sandbox.py:78`) |
-| `ORGTREE_SANDBOX_DISK_MB` | `20480` | virtual-disk size when the org doesn't specify one (`sandbox.py:81`) |
-| `ORGTREE_BRIDGE_PORT` | `7362` | the BridgeGateway — the *one* door out of a container (`sandbox.py:57`) |
-| `ORGTREE_SANDBOX_MCP` | off | EXPERIMENTAL — allow MCP servers inside a sandbox (`supervisor.py:479`) |
+| `ORGTREE_SANDBOX_IMAGE` | `orgtree-sandbox` | container image tag (`sandbox.py` `IMAGE`) |
+| `ORGTREE_SANDBOX_MEM` | `4g` | container memory (`sandbox.py` `MEM`) |
+| `ORGTREE_SANDBOX_CPUS` | `2` | container CPUs (`sandbox.py` `CPUS`) |
+| `ORGTREE_SANDBOX_TMP` | `1g` | `/tmp` tmpfs, counts against memory (`sandbox.py` `TMP_SIZE`) |
+| `ORGTREE_SANDBOX_RUN` | `64m` | `/run` tmpfs (`sandbox.py` `RUN_SIZE`) |
+| `ORGTREE_SANDBOX_DISK_MB` | `20480` | virtual-disk size when the org doesn't specify one (`sandbox.py` `DISK_MB`) |
+| `ORGTREE_BRIDGE_PORT` | `7362` | the BridgeGateway — the *one* door out of a container (`sandbox.py` `BRIDGE_PORT`) |
+| `ORGTREE_SANDBOX_MCP` | off | EXPERIMENTAL — allow MCP servers inside a sandbox (`supervisor.py` `sandbox_mcp_enabled`) |
 
 **What this does and doesn't protect against:** the container isolates the filesystem (the ext4
 virtual disk is the *only* persistent storage a sandboxed agent can reach) and network egress runs
@@ -220,12 +220,12 @@ Two entirely separate mechanisms — do not confuse them:
 | variable | `ORGTREE_EXPOSE_ADMIN` (truthy: `1`/`true`/`yes`/`on`) | `ORGTREE_PUBLIC_PORT` |
 | safe for | a VPN or SSH tunnel to yourself, never the open internet | sharing with someone outside |
 
-`ORGTREE_EXPOSE_ADMIN` binds the admin API to `0.0.0.0` (`api.py:3004`) — anyone who reaches it
+`ORGTREE_EXPOSE_ADMIN` binds the admin API to `0.0.0.0` (`api.py` `_admin_host`) — anyone who reaches it
 controls every org and can make agents run commands on the machine. It's **command-line-only /
 environment-only by design** (D-087, superseding an earlier argv-only ruling, D-39): a service
 definition can set the variable directly; nothing an agent could write — no org setting, no doc key
 — can turn it on, and `clean_env()` strips it from every agent's own environment regardless
-(`supervisor.py:406`). Both deploy scripts keep a convenience switch (`-ExposeAdmin` /
+(`supervisor.py` `clean_env`). Both deploy scripts keep a convenience switch (`-ExposeAdmin` /
 `--expose-admin`) that just sets the variable for that one launch.
 
 ⚠ `README.md`'s installation section still describes the pre-D-087 argv-only model ("no setting,
@@ -233,7 +233,7 @@ org doc, **or environment variable** can turn it on"). That's stale as of the 20
 the mechanism above is current. Worth reconciling in that file.
 
 **For a kiosk**, instead set `ORGTREE_PUBLIC_PORT` (update.ps1/update.sh do this by default) — a
-separate `PublicGateway` ASGI wrapper (`api.py:241-244`) that resolves `/k/<token>` only and 404s
+separate `PublicGateway` ASGI wrapper (`api.py` `PublicGateway`) that resolves `/k/<token>` only and 404s
 everything else: no org list, no discovery, no admin surface at all reachable from it.
 
 ### Fixed hostname
@@ -247,14 +247,14 @@ everything else: no org list, no discovery, no admin surface at all reachable fr
 
 No account, no router config, works behind NAT. It downloads `cloudflared` once, and kiosk share
 URLs on the admin dashboard automatically pick up the live tunnel hostname
-(`<data>/.public_origin`, re-read on a short TTL — `api.py:396-400`).
+(`<data>/.public_origin`, re-read on a short TTL — `api.py` `_public_origin`).
 
 ⚠ **This is not actually a fixed hostname.** The `*.trycloudflare.com` address is random and **dies
 with the window** — restart the tunnel and you get a new one. It's built for "share this with
 someone right now," not a stable address to bookmark or put in DNS.
 
 **For a genuinely fixed hostname**, set `ORGTREE_PUBLIC_ORIGIN` yourself — it wins over the tunnel
-file unconditionally (`api.py:397-399`) — pointed at your own reverse proxy in front of the public
+file unconditionally (`api.py` `_public_origin`) — pointed at your own reverse proxy in front of the public
 port, with your own DNS record and (if you want TLS) your own certificate. **The repo does not
 script this part**; nothing beyond the env var and the raw listener is provided, so a stable domain
 is an operator-supplied reverse proxy (nginx, Caddy, a Cloudflare *named* tunnel with an account —
@@ -419,7 +419,7 @@ it on:
 | org | `api_key` (org setting) | wins over env and the proxied subscription |
 | — | *(kiosk)* | N/A — kiosks can't take an API key at all (§2) |
 
-Effective order for a **sandboxed** org: `org > kiosk > env > proxied` (`sandbox.py:306,453`).
+Effective order for a **sandboxed** org: `org > kiosk > env > proxied` (`sandbox.py` `uses_subscription_auth`, `container_auth`).
 **Unsandboxed** headless orgs get the key as a per-node environment seam instead of a container
 env var — either way, `clean_env()` strips the **host's** `ANTHROPIC_API_KEY`/`ANTHROPIC_AUTH_TOKEN`
 before an agent process ever starts, so a keyless org always bills your subscription and never
