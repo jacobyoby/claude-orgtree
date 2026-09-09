@@ -851,12 +851,15 @@ def transcript_index(root: str | None = None,
     base = root or os.path.expanduser("~/.claude")
     proj = os.path.join(base, "projects")
     out: dict[str, str] = {}
+    dirs: list[str] = []
     try:
         dirs = os.listdir(proj)
     except OSError:
         if strict:
             raise
-        return out
+        # Missing ~/.claude/projects is normal on a clean CI image and for
+        # Codex-only hosts. Do not return here: transcript_path already falls
+        # through to journal_store, and the index must agree with it.
     # the supervisor's own journal store rides the same walk (one layout, one
     # index — see journal_store): its project dirs are appended to the SAME
     # loop so strictness and skip rules cannot diverge between the stores

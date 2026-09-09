@@ -466,6 +466,11 @@ def _():
     keep_doc = _json.loads(_json.dumps(accounts.load()))
     keep_live = accounts.live_identity
     try:
+        # Case ①/② need a live primary lane. On a clean CI image nobody is
+        # signed into Claude Code, so the real live_identity is {"uuid": ""}
+        # and "primary" is dropped from the routing order — the roster then
+        # looks empty and the re-derivation reports "reset time unknown".
+        accounts.live_identity = lambda: {"uuid": "ci-primary", "email": "ci@orgtree"}
         soon = _time.time() + 3600.0
 
         # ① EVERY lane marked — the control that must fail. Capacity really is

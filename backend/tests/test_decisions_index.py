@@ -34,7 +34,7 @@ instrument that works on this class. Do not add a check that guesses.
 
 ⚠ §4 IS LOAD-BEARING, not decoration. `D-NNN` (three digits, zero-padded) is
 `DECISIONS.md`'s namespace. `D-NN` (one or two digits) is
-`docs/interim-docket.md`'s OWN, older series — its `## D-39` is
+`docs/history/interim-docket.md`'s OWN, older series — its `## D-39` is
 "`--expose-admin` — a command-line-only way off loopback", while this
 register's `### D-039` is "unrecoverable holds its seat", a different ruling
 entirely, and around sixty such short references are live in the tree.
@@ -248,9 +248,10 @@ def sec_namespace() -> None:
     print("\n§4  the citation form, and why it is not wider")
 
     def _short_form_is_someone_elses():
-        docket = os.path.join(REPO, "docs", "interim-docket.md")
-        _true(os.path.exists(docket), "interim-docket.md is gone — re-derive "
-                                      "the namespace split before trusting §2")
+        docket = os.path.join(REPO, "docs", "history", "interim-docket.md")
+        _true(os.path.exists(docket), "history/interim-docket.md is gone — "
+                                      "re-derive the namespace split before "
+                                      "trusting §2")
         text = open(docket, encoding="utf-8", errors="replace").read()
         own = re.findall(r"^## (D-\d{1,2}) ·", text, re.M)
         _true(len(own) > 10,

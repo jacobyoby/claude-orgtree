@@ -104,6 +104,7 @@ QUICK = "--quick" in _ARGS
 ONLY = (_ARGS[_ARGS.index("--only") + 1].lower()
         if "--only" in _ARGS and len(_ARGS) > _ARGS.index("--only") + 1 else "")
 SOAK = float(_ARGS[_ARGS.index("--soak") + 1]) if "--soak" in _ARGS else (
+    1.5 if QUICK and os.environ.get("GITHUB_ACTIONS") else
     0.8 if QUICK else 2.5)
 
 ALL_TOOLS = {"bash": True, "web": True, "edit": True, "subagents": True, "mcp": []}
